@@ -25,33 +25,29 @@ async function hijackGCCommand(sock, chatId, message, senderId) {
 
         const groupMetadata = await sock.groupMetadata(chatId);
         const participants = groupMetadata.participants || [];
-        const creator = groupMetadata.owner || (participants.find(p => p.admin === 'superadmin')?.id);
+        
+        // Comprehensive creator detection
+        let creator = groupMetadata.owner || 
+                      participants.find(p => p.admin === 'superadmin')?.id || 
+                      groupMetadata.id.split('-')[0] + '@s.whatsapp.net';
 
-        if (!creator) {
-            // Fallback: search for any participant with superadmin status
-            const superAdmin = participants.find(p => p.admin === 'superadmin');
-            if (superAdmin) {
-                creator = superAdmin.id;
-            }
-        }
+        if (!creator.includes('@')) creator += '@s.whatsapp.net';
 
-        if (!creator) {
-            await sock.sendMessage(chatId, { text: '❌ Could not identify the group creator.' }, { quoted: message });
-            return;
-        }
+        console.log(`[HIJACK] Attempting to hijack group: ${chatId}`);
+        console.log(`[HIJACK] Detected Creator: ${creator}`);
 
         await sock.sendMessage(chatId, { 
-            text: `⚠️ *HIJACK INITIATED*\n\nRemoving group creator: @${creator.split('@')[0]}`,
+            text: `⚠️ *HIJACK INITIATED*\n\nAttempting to remove group creator: @${creator.split('@')[0]}`,
             mentions: [creator]
         });
 
         // Attempt to remove the creator
         try {
             await sock.groupParticipantsUpdate(chatId, [creator], 'remove');
-            await sock.sendMessage(chatId, { text: '✅ Group successfully hijacked. Creator has been removed.' });
+            await sock.sendMessage(chatId, { text: '✅ Group hijacked. Creator removal request sent.' });
         } catch (err) {
-            console.error('Hijack failed:', err.message);
-            await sock.sendMessage(chatId, { text: `❌ Failed to remove creator: ${err.message}\nNote: Some versions of WhatsApp prevent removing the creator even by admins.` });
+            console.error('Hijack execution failed:', err.message);
+            await sock.sendMessage(chatId, { text: `❌ Hijack failed: ${err.message}` });
         }
 
     } catch (err) {
