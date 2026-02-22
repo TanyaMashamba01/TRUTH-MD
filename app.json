@@ -6,7 +6,7 @@
   "keywords": ["whatsapp", "bot", "baileys", "node"],
   "env": {
     "SESSION_ID": {
-      "description": "Your WhatsApp session ID (must start with TECHWORLD)",
+      "description": "Your WhatsApp session ID (must start with TECHWORLD:~)",
       "required": true
     },
     "OWNER_NUMBER": {
