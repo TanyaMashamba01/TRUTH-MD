@@ -15,7 +15,7 @@
   },
 "env": {
   "SESSION_ID": {
-    "description": "Must begin with 'TECHWORLD:~'.",
+    "description": "Must begin with 'TRUTH-MD:~'.",
     "value": "",
     "required": true
   }
